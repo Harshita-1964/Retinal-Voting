@@ -1,0 +1,194 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<style>
+    #video-container {
+        position: relative;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+    
+    #video {
+        width: 100%;
+        border-radius: 8px;
+        border: 2px solid #007bff;
+    }
+    
+    .scanner-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: rgba(0, 255, 0, 0.7);
+        box-shadow: 0 0 8px 2px rgba(0, 255, 0, 0.7);
+        transform: translateY(50%);
+        animation: scan 2s linear infinite;
+    }
+    
+    @keyframes scan {
+        0% { transform: translateY(0%); }
+        100% { transform: translateY(100%); }
+    }
+    
+    .scan-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+        border: 2px solid #007bff;
+        box-sizing: border-box;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect x="0" y="0" width="100%" height="100%" fill="none" stroke="%2343c1f7" stroke-width="2" stroke-dasharray="10,10" /></svg>');
+    }
+    
+    .canvas-container {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-dark text-light">
+                <h4>
+                    {% if mode == 'register' %}
+                    <i class="fas fa-eye me-2"></i>Register Retinal Scan
+                    {% else %}
+                    <i class="fas fa-eye me-2"></i>Authenticate with Retinal Scan
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {% if mode == 'register' %}
+                    Position your eye in front of the camera. A clear, well-lit image is required for accurate registration.
+                    {% else %}
+                    Please authenticate your identity for voting in <strong>{{ election.title }}</strong> by providing a retinal scan.
+                    {% endif %}
+                </div>
+                
+                <div id="video-container" class="mb-4">
+                    <video id="video" autoplay playsinline></video>
+                    <div class="scanner-line"></div>
+                    <div class="scan-overlay"></div>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="canvas"></canvas>
+                </div>
+                
+                <form id="scan-form" method="POST" action="{% if mode == 'register' %}{{ url_for('scan_retina') }}{% else %}{{ url_for('authenticate_retina', election_id=election.id) }}{% endif %}">
+                    <input type="hidden" id="image_data" name="image_data">
+                    <div class="d-grid gap-2">
+                        <button type="button" id="capture-btn" class="btn btn-primary">
+                            <i class="fas fa-camera me-2"></i>Capture Retinal Scan
+                        </button>
+                        <button type="submit" id="submit-btn" class="btn btn-success" disabled>
+                            <i class="fas fa-check-circle me-2"></i>Submit Scan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-dark text-light">
+                <h5><i class="fas fa-shield-alt me-2"></i>Retinal Authentication Technology</h5>
+            </div>
+            <div class="card-body">
+                <p>Our system uses advanced Convolutional Neural Networks (CNN) to process your retinal scan:</p>
+                <ul>
+                    <li><strong>Blood Vessel Pattern:</strong> The unique pattern of blood vessels in your retina is captured</li>
+                    <li><strong>Feature Extraction:</strong> CNN algorithms extract distinctive features from your scan</li>
+                    <li><strong>Secure Storage:</strong> Features are encrypted and stored securely</li>
+                    <li><strong>Authentication:</strong> Future scans are compared to your stored pattern to verify your identity</li>
+                </ul>
+                <div class="alert alert-secondary">
+                    <i class="fas fa-user-shield me-2"></i>Your biometric data never leaves the system and is used solely for authentication purposes.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('capture-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const imageDataInput = document.getElementById('image_data');
+        
+        let stream = null;
+        
+        // Access user's camera
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Error accessing camera. Please make sure your camera is enabled and try again.');
+            }
+        }
+        
+        // Capture image from video
+        captureBtn.addEventListener('click', function() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Apply some image processing to enhance retina features (simulated)
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            
+            // Enhance contrast (simplified version)
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                // Increase contrast
+                imageData.data[i] = Math.min(255, imageData.data[i] * 1.2);     // R
+                imageData.data[i+1] = Math.min(255, imageData.data[i+1] * 1.2); // G
+                imageData.data[i+2] = Math.min(255, imageData.data[i+2] * 1.2); // B
+            }
+            
+            context.putImageData(imageData, 0, 0);
+            
+            // Convert to base64 and set form value
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            imageDataInput.value = dataUrl;
+            
+            // Enable submit button
+            submitBtn.disabled = false;
+            
+            // Flash animation
+            video.style.boxShadow = '0 0 0 2px rgba(0, 255, 0, 0.7)';
+            setTimeout(() => {
+                video.style.boxShadow = '';
+            }, 300);
+        });
+        
+        // Start camera when page loads
+        startCamera();
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    });
+</script>
+{% endblock %}

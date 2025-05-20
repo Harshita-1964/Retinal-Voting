@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-dark text-light">
+                <h4><i class="fas fa-sign-in-alt me-2"></i>Login</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-dark text-light">
+                <h5><i class="fas fa-lock me-2"></i>Secure Authentication</h5>
+            </div>
+            <div class="card-body">
+                <p>Our system uses a two-factor authentication approach:</p>
+                <ol>
+                    <li>Username and password verification</li>
+                    <li>Retinal scan authentication before voting</li>
+                </ol>
+                <div class="alert alert-success">
+                    <i class="fas fa-eye me-2"></i>Retinal authentication ensures that only registered voters can cast ballots, preventing fraud and identity theft.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

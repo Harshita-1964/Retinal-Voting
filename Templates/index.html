@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-5">
+        <h1 class="display-4">Secure E-Voting System</h1>
+        <p class="lead">Powered by Retinal Authentication and Blockchain Technology</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-light">
+                <h5><i class="fas fa-info-circle me-2"></i>About the System</h5>
+            </div>
+            <div class="card-body">
+                <p>Our e-voting system leverages cutting-edge technologies to ensure:</p>
+                <ul>
+                    <li><strong>Biometric Authentication:</strong> Retinal scanning ensures only registered voters can access the system</li>
+                    <li><strong>Secure Storage:</strong> Blockchain technology provides immutable and transparent vote records</li>
+                    <li><strong>Data Privacy:</strong> Advanced encryption protects voter information</li>
+                    <li><strong>Real-time Results:</strong> Instant vote counting with detailed analytics</li>
+                </ul>
+                {% if not current_user.is_authenticated %}
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">Register to Vote</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-light">
+                <h5><i class="fas fa-vote-yea me-2"></i>Active Elections</h5>
+            </div>
+            <div class="card-body">
+                {% if active_elections %}
+                <div class="list-group">
+                    {% for election in active_elections %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ election.title }}</h5>
+                            <small>Ends: {{ election.end_date.strftime('%b %d, %Y') }}</small>
+                        </div>
+                        <p class="mb-1">{{ election.description }}</p>
+                        {% if current_user.is_authenticated and current_user.is_registered %}
+                        <a href="{{ url_for('authenticate_retina', election_id=election.id) }}" class="btn btn-sm btn-success mt-2">
+                            <i class="fas fa-check-circle me-1"></i> Vote Now
+                        </a>
+                        {% elif current_user.is_authenticated and not current_user.is_registered %}
+                        <a href="{{ url_for('scan_retina') }}" class="btn btn-sm btn-info mt-2">
+                            <i class="fas fa-eye me-1"></i> Register Retina Scan
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-primary mt-2">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login to Vote
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No active elections at the moment. Please check back later.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-dark text-light">
+                <h5><i class="fas fa-shield-alt me-2"></i>Our Technology</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <i class="fas fa-eye fa-3x mb-3 text-primary"></i>
+                            <h5>Retinal Authentication</h5>
+                            <p>Unique biometric identification using convolutional neural networks (CNN) for pattern recognition.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <i class="fas fa-link fa-3x mb-3 text-primary"></i>
+                            <h5>Blockchain Technology</h5>
+                            <p>Immutable and transparent storage of voting records ensures integrity and auditability.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <i class="fas fa-lock fa-3x mb-3 text-primary"></i>
+                            <h5>Secure Processing</h5>
+                            <p>Advanced image processing techniques and secure data handling protect voter privacy.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

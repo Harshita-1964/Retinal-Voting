@@ -1,0 +1,135 @@
+{% extends "layout.html" %}
+
+{% block title %}Manage Elections{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Manage Elections</h1>
+    
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Create New Election</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin_elections') }}">
+                        <input type="hidden" name="action" value="create">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Election Title</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="end_date" class="form-label">End Date</label>
+                                <input type="datetime-local" class="form-control" id="end_date" name="end_date" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="is_active" name="is_active">
+                            <label class="form-check-label" for="is_active">Make election active immediately</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Election</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2 class="mb-4">Existing Elections</h2>
+    {% if elections %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for election in elections %}
+                <tr>
+                    <td>{{ election.title }}</td>
+                    <td>{{ election.description }}</td>
+                    <td>{{ election.start_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ election.end_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {% if election.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editElection{{ election.id }}">Edit</button>
+                            <form method="POST" action="{{ url_for('admin_elections') }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this election?');">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="election_id" value="{{ election.id }}">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editElection{{ election.id }}" tabindex="-1" aria-labelledby="editElectionLabel{{ election.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editElectionLabel{{ election.id }}">Edit Election</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="POST" action="{{ url_for('admin_elections') }}">
+                                            <input type="hidden" name="action" value="update">
+                                            <input type="hidden" name="election_id" value="{{ election.id }}">
+                                            <div class="mb-3">
+                                                <label for="title{{ election.id }}" class="form-label">Election Title</label>
+                                                <input type="text" class="form-control" id="title{{ election.id }}" name="title" value="{{ election.title }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="description{{ election.id }}" class="form-label">Description</label>
+                                                <textarea class="form-control" id="description{{ election.id }}" name="description" rows="3">{{ election.description }}</textarea>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="start_date{{ election.id }}" class="form-label">Start Date</label>
+                                                    <input type="datetime-local" class="form-control" id="start_date{{ election.id }}" name="start_date" value="{{ election.start_date.strftime('%Y-%m-%dT%H:%M') }}" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="end_date{{ election.id }}" class="form-label">End Date</label>
+                                                    <input type="datetime-local" class="form-control" id="end_date{{ election.id }}" name="end_date" value="{{ election.end_date.strftime('%Y-%m-%dT%H:%M') }}" required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="is_active{{ election.id }}" name="is_active" {% if election.is_active %}checked{% endif %}>
+                                                <label class="form-check-label" for="is_active{{ election.id }}">Active</label>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No elections created yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

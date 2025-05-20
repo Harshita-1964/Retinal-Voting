@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-dark text-light">
+                <h4><i class="fas fa-vote-yea me-2"></i>Vote: {{ election.title }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success mb-4">
+                    <i class="fas fa-check-circle me-2"></i>Retinal authentication successful! You can now cast your vote.
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Election Details</h5>
+                        <p>{{ election.description }}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Start Date:</strong> {{ election.start_date.strftime('%b %d, %Y') }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>End Date:</strong> {{ election.end_date.strftime('%b %d, %Y') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ url_for('vote', election_id=election.id) }}">
+                    <h5 class="mb-3">Select your candidate:</h5>
+                    
+                    {% if candidates %}
+                    <div class="list-group mb-4">
+                        {% for candidate in candidates %}
+                        <label class="list-group-item list-group-item-action">
+                            <div class="d-flex align-items-center">
+                                <input class="form-check-input me-3" type="radio" name="candidate_id" value="{{ candidate.id }}" required>
+                                <div>
+                                    <h6 class="mb-1">{{ candidate.name }}</h6>
+                                    <p class="mb-1 text-muted">{{ candidate.position }}</p>
+                                    {% if candidate.description %}
+                                    <p class="mb-0 small">{{ candidate.description }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>There are no candidates available for this election.
+                    </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Important: Your vote is final and cannot be changed after submission.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary" {% if not candidates %}disabled{% endif %}>
+                            <i class="fas fa-paper-plane me-2"></i>Cast Your Vote
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-dark text-light">
+                <h5><i class="fas fa-link me-2"></i>Blockchain Vote Security</h5>
+            </div>
+            <div class="card-body">
+                <p>When you cast your vote, the following security measures are applied:</p>
+                <ol>
+                    <li>Your vote is encrypted and added to a secure blockchain</li>
+                    <li>A cryptographic hash links your vote to previous votes in the chain</li>
+                    <li>The entire blockchain is validated to ensure data integrity</li>
+                    <li>Once recorded, votes cannot be altered or removed</li>
+                </ol>
+                <div class="alert alert-info">
+                    <i class="fas fa-shield-alt me-2"></i>This technology ensures your vote is securely recorded and counted accurately.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

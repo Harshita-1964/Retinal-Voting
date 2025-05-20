@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+
+{% block title %}Manage Candidates{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Manage Candidates</h1>
+    
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Add New Candidate</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin_candidates') }}">
+                        <input type="hidden" name="action" value="create">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Candidate Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="position" class="form-label">Position</label>
+                            <input type="text" class="form-control" id="position" name="position" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Candidate</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2 class="mb-4">Existing Candidates</h2>
+    {% if candidates %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidate in candidates %}
+                <tr>
+                    <td>{{ candidate.name }}</td>
+                    <td>{{ candidate.position }}</td>
+                    <td>{{ candidate.description }}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editCandidate{{ candidate.id }}">Edit</button>
+                            <form method="POST" action="{{ url_for('admin_candidates') }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this candidate?');">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editCandidate{{ candidate.id }}" tabindex="-1" aria-labelledby="editCandidateLabel{{ candidate.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editCandidateLabel{{ candidate.id }}">Edit Candidate</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="POST" action="{{ url_for('admin_candidates') }}">
+                                            <input type="hidden" name="action" value="update">
+                                            <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+                                            <div class="mb-3">
+                                                <label for="name{{ candidate.id }}" class="form-label">Candidate Name</label>
+                                                <input type="text" class="form-control" id="name{{ candidate.id }}" name="name" value="{{ candidate.name }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="position{{ candidate.id }}" class="form-label">Position</label>
+                                                <input type="text" class="form-control" id="position{{ candidate.id }}" name="position" value="{{ candidate.position }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="description{{ candidate.id }}" class="form-label">Description</label>
+                                                <textarea class="form-control" id="description{{ candidate.id }}" name="description" rows="3">{{ candidate.description }}</textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No candidates added yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

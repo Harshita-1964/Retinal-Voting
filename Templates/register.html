@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-dark text-light">
+                <h4><i class="fas fa-user-plus me-2"></i>Register</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-dark text-light">
+                <h5><i class="fas fa-info-circle me-2"></i>Registration Process</h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Create your account with a unique username and password.</li>
+                    <li>After registration, you'll be prompted to scan your retina.</li>
+                    <li>Your retinal pattern will be securely stored for future authentication.</li>
+                    <li>Once registered, you can participate in active elections.</li>
+                </ol>
+                <div class="alert alert-info">
+                    <i class="fas fa-shield-alt me-2"></i>Your biometric data is securely encrypted and stored in compliance with privacy regulations.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
